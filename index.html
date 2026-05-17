@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+  /* --- Original Design Elements --- */
+  body { 
+    padding: 15px; /* Slightly reduced for mobile screens */
+    background-color: #f4f7f6; 
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+  }
+  .container { 
+    max-width: 450px; 
+    background: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+    position: relative; 
+    margin: auto; 
+  }
+  .header-title {
+    color: #2c3e50; 
+    font-weight: 800; 
+    font-size: 1.8rem; /* Scaled down slightly for mobile headers */
+    text-transform: uppercase;
+  }
+  .balance-card { 
+    background: #fff; 
+    border: 2px solid #dee2e6; 
+    border-radius: 8px; 
+    padding: 15px; 
+    text-align: center; 
+    margin-bottom: 20px; 
+  }
+  #balanceDisplay { font-weight: bold; margin: 0; color: #2c3e50; }
+  .btn-plus-header { 
+    border-radius: 50%; 
+    width: 40px; 
+    height: 40px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 18px; 
+  }
+  
+  /* --- Toggle Button Fixes --- */
+  .btn-check:checked + .btn-outline-success { background-color: #198754 !important; color: white !important; }
+  .btn-check:checked + .btn-outline-danger { background-color: #dc3545 !important; color: white !important; }
+  .mode-selector { margin-bottom: 25px; }
+  #cashbookForm { display: none; }
+
+  /* --- Table & History Fixes --- */
+  tr.clickable-row { cursor: pointer; transition: background 0.2s; }
+  tr.clickable-row:active { background-color: #e9ecef !important; } /* Visual feedback for touch */
+  
+  .table-responsive {
+    max-height: 400px; /* Limits height so footer/buttons stay reachable */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for mobile */
+    border-radius: 8px;
+  }
+
+  /* --- CRITICAL MOBILE OPTIMIZATIONS (Point 3) --- */
+  button, 
+  .btn, 
+  .clickable-row, 
+  label.btn {
+    /* Removes the 300ms click delay on mobile */
+    touch-action: manipulation; 
+    /* Prevents the annoying blue highlight box on tap */
+    -webkit-tap-highlight-color: transparent;
+    /* Prevents accidental text selection while tapping fast */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Make form inputs easier to tap on mobile */
+  .form-control, .form-select {
+    font-size: 16px !important; /* Prevents iOS/Android from auto-zooming on focus */
+    padding: 10px;
+  }
+
+  #status {
+    min-height: 24px;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="header-title mb-0" style="font-size: 2rem; font-weight: 800; letter-spacing: 1px;">
+    HOTLAND CLUB
+  </div>
+    <button class="btn btn-primary btn-plus-header shadow-sm" data-bs-toggle="modal" data-bs-target="#memberModal" title="Add New Member">
+      <i class="bi bi-person-plus-fill"></i>
+    </button>
+  </div>
+
+  <div class="balance-card">
+    <small class="text-uppercase fw-bold text-muted">Current Balance</small>
+    <h2 id="balanceDisplay">₹0.00</h2>
+  </div>
+
+  <div id="mainUI">
+    <div class="d-flex mode-selector gap-2">
+      <input type="radio" class="btn-check" name="entryType" id="typeIn" value="In" autocomplete="off">
+      <label class="btn btn-outline-success w-50 fw-bold" for="typeIn" onclick="showForm('In')">CASH IN (+)</label>
+      <input type="radio" class="btn-check" name="entryType" id="typeOut" value="Out" autocomplete="off">
+      <label class="btn btn-outline-danger w-50 fw-bold" for="typeOut" onclick="showForm('Out')">CASH OUT (-)</label>
+    </div>
+
+    <div id="historySection" class="history-section">
+      <h6 class="fw-bold mb-3">Recent Transactions</h6>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover" style="font-size: 0.8rem;">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Name/Category</th>
+              <th>In</th>
+              <th>Out</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    <div class="d-flex justify-content-between align-items-center mt-3">
+  <button
+    class="btn btn-sm btn-outline-secondary px-3"
+    id="prevBtn"
+    onclick="changePage(-1)">
+    ← Prev
+  </button>
+
+  <span id="pageInfo" class="small fw-bold text-muted">
+    Page 1
+  </span>
+
+  <button
+    class="btn btn-sm btn-outline-secondary px-3"
+    id="nextBtn"
+    onclick="changePage(1)">
+    Next →
+  </button>
+</div>
+  </div>
+
+  <form id="cashbookForm">
+    <h5 id="formTitle" class="fw-bold mb-3">New Entry</h5>
+    <input type="hidden" name="type" id="formType" value="In">
+    <input type="hidden" name="rowId" id="rowIdField"> <div class="mb-3">
+      <label class="form-label small fw-bold">Date</label>
+      <input type="date" name="date" id="dateField" class="form-control" required>
+    </div>
+    <div id="memberFieldGroup" class="mb-3">
+  <label class="form-label small fw-bold">Member Name</label>
+  <select class="form-select" name="name" id="nameInput">
+    <option value="" selected disabled>Select a member...</option>
+  </select>
+</div>
+    <div class="mb-3">
+  <label class="form-label small fw-bold">Category</label>
+  <input type="text" 
+         name="month" 
+         id="monthField" 
+         class="form-control"
+         style="text-transform: uppercase;" 
+         oninput="this.value = this.value.toUpperCase()" 
+         required>
+</div>
+    <div class="mb-3">
+      <label class="form-label small fw-bold">Amount</label>
+      <input type="number" name="amount" id="amountField" class="form-control" step="0.01" required>
+    </div>
+    <div class="mb-3">
+  <label class="form-label small fw-bold">Description</label>
+  <textarea 
+    name="description" 
+    id="descField" 
+    class="form-control" 
+    rows="2" 
+    style="text-transform: uppercase;" 
+    oninput="this.value = this.value.toUpperCase()" 
+    placeholder="ENTER ADDITIONAL DETAILS..."></textarea>
+</div>
+    
+    <div class="d-grid gap-2">
+      <button type="submit" id="submitBtn" class="btn btn-success fw-bold">
+        <i class="bi bi-check-circle-fill me-1"></i> <span id="submitBtnText">Submit Entry</span>
+      </button>
+      <div class="d-flex gap-2">
+        <button type="button" id="deleteBtn" class="btn btn-outline-danger flex-grow-1 fw-bold" onclick="deleteTransaction()">
+  <i class="bi bi-trash3-fill"></i> DELETE
+</button>
+        <button type="button" class="btn btn-secondary flex-grow-1 fw-bold" onclick="hideForm()">Cancel</button>
+      </div>
+    </div>
+  </form>
+  
+  <div id="status" class="mt-3 text-center small"></div>
+</div>
+
+<div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold">Add New Member</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="memberForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Date</label>
+            <input type="date" name="date" id="memberDate" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-bold">Member Name</label>
+            <input type="text" name="name" class="form-control" placeholder="Full Name" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" id="saveMemberBtn" class="btn btn-primary fw-bold">Save Member</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>CONFIRM DELETE</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center py-4">
+        <p class="mb-0 fw-bold text-secondary">ARE YOU SURE YOU WANT TO DELETE THIS TRANSACTION PERMANENTLY?</p>
+      </div>
+      <div class="modal-footer justify-content-center border-0 pb-4">
+        <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">CANCEL</button>
+        <button type="button" class="btn btn-danger px-4 fw-bold" onclick="executeDelete()">YES, DELETE</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const form = document.getElementById('cashbookForm');
+  const mainUI = document.getElementById('mainUI');
+  const memberGroup = document.getElementById('memberFieldGroup');
+  const submitBtn = document.getElementById('submitBtn');
+  const submitBtnText = document.getElementById('submitBtnText');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const formType = document.getElementById('formType');
+  const rowIdField = document.getElementById('rowIdField');
+
+  function showForm(mode, isEdit = false) {
+    mainUI.style.display = 'none';
+    form.style.display = 'block';
+    formType.value = mode;
+    
+    document.getElementById('formTitle').innerText = isEdit ? "Edit Transaction" : "New Entry";
+    submitBtnText.innerText = isEdit ? "Save Changes" : "Submit Entry";
+    deleteBtn.style.display = isEdit ? "block" : "none";
+
+    if (mode === 'In') {
+      memberGroup.style.display = 'block';
+      submitBtn.className = "btn btn-success fw-bold";
+      document.getElementById('nameInput').required = true;
+    } else {
+      memberGroup.style.display = 'none';
+      submitBtn.className = "btn btn-danger fw-bold";
+      document.getElementById('nameInput').required = false;
+    }
+  }
+
+  function hideForm() {
+    form.style.display = 'none';
+    mainUI.style.display = 'block';
+    form.reset();
+    rowIdField.value = "";
+    document.getElementById('dateField').valueAsDate = new Date();
+    // Uncheck radios
+    document.querySelectorAll('.btn-check').forEach(r => r.checked = false);
+  }
+
+function editTransaction(index) {
+  try {
+    const data = allTransactions[index];
+    if (!data) return;
+
+    // 1. Show the form first so elements are visible before filling
+    const isCashIn = (data[4] !== "" && data[4] !== "-");
+    showForm(isCashIn ? 'In' : 'Out', true);
+
+    // 2. Fill the hidden Row ID
+    document.getElementById('rowIdField').value = data[6];
+
+    // 3. FIXED DATE LOGIC: Ensure YYYY-MM-DD with leading zeros for mobile Chrome
+    const d = data[0].split('-'); // Assumes DD-MM-YYYY from sheet
+    if (d.length === 3) {
+      const day = d[0].padStart(2, '0');
+      const month = d[1].padStart(2, '0');
+      const year = d[2];
+      document.getElementById('dateField').value = `${year}-${month}-${day}`;
+    }
+
+    // 4. Fill text and select fields
+    // Ensure the name exists in the dropdown before selecting
+    const nameValue = (data[1] === "N/A" || !data[1]) ? "" : data[1];
+    document.getElementById('nameInput').value = nameValue;
+    
+    document.getElementById('monthField').value = data[2] || "";
+    
+    // Amount: Pick the value from the In (index 4) or Out (index 5) column
+    const amount = isCashIn ? data[4] : data[5];
+    document.getElementById('amountField').value = parseFloat(amount.toString().replace(/,/g, '')) || 0;
+    
+    document.getElementById('descField').value = data[3] || "";
+
+    // 5. Smooth scroll to top so mobile user sees the form immediately
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (err) {
+    console.error("Edit Error: ", err);
+    document.getElementById('status').innerHTML = `<span class="text-danger">Edit Error: ${err.message}</span>`;
+  }
+}
+  function formatDateForInput(dateStr) {
+    if(!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toISOString().split('T')[0];
+  }
+
+  // PASTE THIS INSIDE YOUR <script> TAGS
+
+// This function triggers the styled Modal
+function deleteTransaction() {
+  const rowId = document.getElementById('rowIdField').value;
+  if (!rowId) {
+    alert("SELECT A TRANSACTION FIRST.");
+    return;
+  }
+  // This opens the Bootstrap Modal manually
+  const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+  deleteModal.show();
+}
+
+// This function is called ONLY when the user clicks "YES, DELETE" in the modal
+function executeDelete() {
+  const rowId = document.getElementById('rowIdField').value;
+  const modalElement = document.getElementById('deleteConfirmModal');
+  const modalInstance = bootstrap.Modal.getInstance(modalElement);
+  
+  document.getElementById('status').innerText = "DELETING...";
+  modalInstance.hide(); // Closes the popup window
+
+  google.script.run
+    .withSuccessHandler(msg => {
+      document.getElementById('status').innerHTML = `<span class="text-success">${msg}</span>`;
+      hideForm();      // Returns to the table view
+      refreshBalance(); // Updates the Green/Red total
+      updateHistory();  // Refreshes the list
+      setTimeout(() => { document.getElementById('status').innerText = ""; }, 3000);
+    })
+    .deleteEntry(rowId); // Calls the delete logic in your code.gs
+}
+  // Modified Render Table to include click event
+  let allTransactions = [];
+  let currentPage = 1;
+  const rowsPerPage = 10;
+
+  let allTransactions = [];
+let currentPage = 1;
+const rowsPerPage = 10;
+
+function renderTable() {
+
+  const tbody =
+    document.getElementById('historyBody');
+
+  const start =
+    (currentPage - 1) * rowsPerPage;
+
+  const end =
+    start + rowsPerPage;
+
+  const pageData =
+    allTransactions.slice(start, end);
+
+  if (allTransactions.length === 0) {
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="text-center text-muted py-4">
+          No records found
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  tbody.innerHTML = pageData.map((row, idx) => {
+
+    const actualIndex = start + idx;
+
+    const isIn =
+      row[4] !== "" &&
+      row[4] !== "-";
+
+    const mainText =
+      isIn ? row[1] : row[2];
+
+    const subText =
+      isIn ? row[2] : row[3];
+
+    const cashIn =
+      isIn
+      ? `<span class="text-success fw-bold">+₹${row[4]}</span>`
+      : "-";
+
+    const cashOut =
+      (!isIn && row[5] !== "")
+      ? `<span class="text-danger fw-bold">-₹${row[5]}</span>`
+      : "-";
+
+    return `
+      <tr
+        class="clickable-row"
+        onclick="editTransaction(${actualIndex})">
+
+        <td style="vertical-align: middle;">
+          ${row[0]}
+        </td>
+
+        <td style="vertical-align: middle;">
+          <div class="fw-bold text-uppercase">
+            ${mainText}
+          </div>
+
+          <div class="small text-muted text-uppercase">
+            ${subText || ""}
+          </div>
+        </td>
+
+        <td style="vertical-align: middle;">
+          ${cashIn}
+        </td>
+
+        <td style="vertical-align: middle;">
+          ${cashOut}
+        </td>
+
+      </tr>
+    `;
+
+  }).join('');
+
+  const totalPages =
+    Math.ceil(allTransactions.length / rowsPerPage);
+
+  document.getElementById('pageInfo').innerText =
+    `Page ${currentPage} of ${totalPages}`;
+
+  document.getElementById('prevBtn').disabled =
+    currentPage === 1;
+
+  document.getElementById('nextBtn').disabled =
+    currentPage >= totalPages;
+}
+
+  form.onsubmit = function(e) {
+    e.preventDefault();
+    
+    // 1. Prevent double-taps on mobile
+    if (submitBtn.disabled) return; 
+    
+    submitBtn.disabled = true;
+    const originalBtnText = submitBtnText.innerText;
+    submitBtnText.innerText = "SAVING...";
+    document.getElementById('status').innerHTML = '<span class="text-primary">Processing... Please wait.</span>';
+    
+    const formData = {
+      rowId: rowIdField.value,
+      date: this.date.value,
+      name: (formType.value === 'In') ? (this.name.value || "N/A") : "N/A",
+      month: this.month.value,
+      type: formType.value,
+      amount: this.amount.value,
+      description: this.description.value
+    };
+    
+    // 2. Call the server
+    google.script.run
+      .withFailureHandler(err => {
+        // Handle crashes (common on spotty mobile data)
+        document.getElementById('status').innerHTML = `<span class="text-danger">Error: ${err.message}</span>`;
+        submitBtn.disabled = false;
+        submitBtnText.innerText = originalBtnText;
+      })
+      .withSuccessHandler(msg => {
+        document.getElementById('status').innerHTML = `<span class="text-success">${msg}</span>`;
+        
+        // 3. Chain the refreshes instead of calling them all at once
+        // This prevents the mobile browser from freezing
+        google.script.run.withSuccessHandler(bal => {
+            const display = document.getElementById('balanceDisplay');
+            display.innerText = "₹" + bal;
+            
+            google.script.run.withSuccessHandler(data => {
+                allTransactions = data;
+                renderTable();
+                
+                // 4. Reset UI only after EVERYTHING is loaded
+                submitBtn.disabled = false;
+                submitBtnText.innerText = originalBtnText;
+                hideForm();
+                
+                setTimeout(() => { 
+                    document.getElementById('status').innerText = ""; 
+                }, 3000);
+            }).getTransactionHistory();
+            
+        }).getTotalBalance();
+      })
+      .processForm(formData);
+};
+
+  window.onload = function() {
+    document.getElementById('dateField').valueAsDate = new Date();
+    document.getElementById('memberDate').valueAsDate = new Date();
+    
+    // Start the chain: 1 finishes, then starts 2, then starts 3
+    document.getElementById('status').innerText = "Loading data...";
+    
+    google.script.run.withSuccessHandler(names => {
+        const select = document.getElementById('nameInput');
+        select.innerHTML = '<option value="" selected disabled>Select a member...</option>';
+        if (names && names.length > 0) {
+            names.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.innerHTML = name;
+                select.appendChild(opt);
+            });
+        }
+        
+        // Chain to Balance
+        google.script.run.withSuccessHandler(bal => {
+            const display = document.getElementById('balanceDisplay');
+            display.innerText = "₹" + bal;
+            
+            // Chain to History
+            google.script.run.withSuccessHandler(data => {
+                allTransactions = data;
+                renderTable();
+                document.getElementById('status').innerText = ""; // Clear loading msg
+            }).getTransactionHistory();
+            
+        }).getTotalBalance();
+        
+    }).getMemberNames();
+};
+
+  function refreshNames() {
+  google.script.run.withSuccessHandler(names => {
+    const select = document.getElementById('nameInput');
+    // Keep the first "placeholder" option
+    select.innerHTML = '<option value="" selected disabled>Select a member...</option>';
+    
+    if (names && names.length > 0) {
+      names.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.innerHTML = name;
+        select.appendChild(opt);
+      });
+    }
+  }).getMemberNames();
+}
+
+  function refreshBalance() {
+  google.script.run.withSuccessHandler(bal => {
+    const display = document.getElementById('balanceDisplay');
+    
+    // Remove formatting like commas and symbols to check the number value
+    // We replace the Indian comma and currency symbol to parse it correctly
+    const numericBalance = parseFloat(bal.replace(/,/g, ''));
+
+    if (numericBalance > 0) {
+      display.innerText = "₹" + bal;
+      display.className = "fw-bold text-success"; // Green for Positive
+    } else if (numericBalance < 0) {
+      // For negative, we show -₹ and the absolute value
+      display.innerText = "-₹" + bal.replace('-', ''); 
+      display.className = "fw-bold text-danger"; // Red for Negative
+    } else {
+      display.innerText = "₹" + bal;
+      display.className = "fw-bold text-dark"; // Black/Dark for Zero
+    }
+  }).getTotalBalance();
+}
+
+  function updateHistory() {
+    google.script.run.withSuccessHandler(data => {
+      allTransactions = data;
+      renderTable();
+    }).getTransactionHistory();
+  }
+
+  function changePage(step) {
+
+  const totalPages =
+    Math.ceil(allTransactions.length / rowsPerPage);
+
+  currentPage += step;
+
+  if (currentPage < 1)
+    currentPage = 1;
+
+  if (currentPage > totalPages)
+    currentPage = totalPages;
+
+  renderTable();
+}
+  // Member form logic
+  document.getElementById('memberForm').onsubmit = function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveMemberBtn');
+    btn.disabled = true;
+    const memberData = { date: this.date.value, name: this.name.value };
+    google.script.run.withSuccessHandler(() => {
+      btn.disabled = false;
+      this.reset();
+      bootstrap.Modal.getInstance(document.getElementById('memberModal')).hide();
+      refreshNames();
+    }).saveNewMember(memberData);
+  };
+</script>
+</body>
+</html>
