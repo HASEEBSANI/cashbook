@@ -1,488 +1,452 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Hotland Club Cashbook</title>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
-:root{
-  --primary-gradient:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
-  --accent-color:#38bdf8;
-  --glass:rgba(255,255,255,0.95);
+:root {
+  --bg-app: #f8fafc;
+  --sidebar-gradient: linear-gradient(180deg, #0f172a 0%, #1e1b4b 100%);
+  --accent-primary: #6366f1;
+  --accent-light: #eef2ff;
+  --success-glow: #10b981;
+  --success-bg: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --danger-glow: #f43f5e;
+  --danger-bg: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+  --card-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body{
-  background:#f1f5f9;
-  font-family:Segoe UI,Roboto,Arial;
+body {
+  background-color: var(--bg-app);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #1e293b;
+  overflow-x: hidden;
 }
 
-.offcanvas{
-  background:var(--primary-gradient)!important;
-  color:#fff;
-  width:280px!important;
+/* Master Layout Framework */
+.app-wrapper {
+  display: flex;
+  min-height: 100vh;
 }
 
-.nav-link{
-  color:#94a3b8;
-  padding:12px 20px;
-  margin:4px 15px;
-  border-radius:12px;
-  text-decoration:none;
-  display:block;
+.sidebar-desktop {
+  width: 280px;
+  background: var(--sidebar-gradient);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
 }
 
-.nav-link:hover{
-  background:rgba(255,255,255,.1);
-  color:#fff;
+.main-content-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.app-header{
-  background:var(--glass);
-  padding:12px 20px;
-  position:sticky;
-  top:0;
-  z-index:999;
+/* Sidebar Styling */
+.nav-brand {
+  padding: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.container-main{
-  max-width:480px;
-  margin:20px auto;
-  padding:0 15px;
+.nav-menu-list {
+  padding: 20px 12px;
+  list-style: none;
+  margin: 0;
 }
 
-.balance-card,
-.history-card,
-#cashbookForm{
-  background:#fff;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:0 4px 6px rgba(0,0,0,.05);
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #94a3b8;
+  padding: 14px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--smooth);
+  margin-bottom: 6px;
 }
 
-#cashbookForm{
-  display:none;
+.sidebar-link i {
+  font-size: 1.25rem;
 }
 
-.clickable-row{
-  cursor:pointer;
+.sidebar-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.clickable-row:hover{
-  background:#f8fafc;
+.sidebar-link.active-nav {
+  background: var(--accent-primary);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
 }
 
-#membersListUI{
-  display:none;
+/* Mobile Offcanvas Override */
+.offcanvas {
+  background: var(--sidebar-gradient) !important;
+  color: #fff;
+  width: 280px !important;
+}
+
+/* Header Navbar */
+.app-header {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Styled Adaptive Cards */
+.container-main {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 16px 100px 16px;
+}
+
+.premium-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  transition: var(--smooth);
+}
+
+/* Balance Hero Card */
+.balance-card {
+  background: radial-gradient(circle at top right, #312e81 0%, #0f172a 100%);
+  color: white;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.balance-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.15);
+  filter: blur(40px);
+}
+
+/* UI Action Buttons */
+.btn-action {
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-weight: 600;
+  color: #fff;
+  transition: var(--smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.btn-action-in {
+  background: var(--success-bg);
+}
+
+.btn-action-in:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-action-out {
+  background: var(--danger-bg);
+}
+
+.btn-action-out:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.3);
+}
+
+/* Table Design Fixes */
+.clickable-row {
+  cursor: pointer;
+  transition: var(--smooth);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.clickable-row:hover {
+  background-color: var(--accent-light);
+  transform: scale(1.01);
+}
+
+.badge-action-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+/* Modern Form Element Controls */
+.form-control, .form-select {
+  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  transition: var(--smooth);
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: #fff;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+/* Hiding panels securely */
+#cashbookForm, #membersListUI {
+  display: none;
+}
+
+/* Responsive Structural Breakpoints */
+@media (max-width: 991.98px) {
+  .sidebar-desktop {
+    display: none;
+  }
 }
 </style>
 </head>
-
 <body>
 
-<div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
+<div class="app-wrapper">
 
-<div class="offcanvas-header">
-<h5 class="fw-bold">HOTLAND CLUB</h5>
+  <aside class="sidebar-desktop">
+    <div class="nav-brand">
+      <h5 class="text-white fw-bold m-0 tracking-wide"><i class="bi bi-wallet2 me-2 text-info"></i>HOTLAND CLUB</h5>
+    </div>
+    <ul class="nav-menu-list">
+      <li>
+        <a class="sidebar-link active-nav" href="#" onclick="switchNavigation('dashboard', this)">
+          <i class="bi bi-grid-1x2"></i> Dashboard
+        </a>
+      </li>
+      <li>
+        <a class="sidebar-link" href="#" onclick="switchNavigation('members', this)">
+          <i class="bi bi-people"></i> Members Management
+        </a>
+      </li>
+    </ul>
+  </aside>
 
-<button
-type="button"
-class="btn-close btn-close-white"
-data-bs-dismiss="offcanvas">
-</button>
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
+    <div class="offcanvas-header">
+      <h5 class="fw-bold text-white m-0"><i class="bi bi-wallet2 me-2 text-info"></i>HOTLAND CLUB</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body px-2">
+      <a class="sidebar-link active-nav" href="#" data-bs-dismiss="offcanvas" onclick="switchNavigation('dashboard', null)">
+        <i class="bi bi-grid-1x2"></i> Dashboard
+      </a>
+      <a class="sidebar-link" href="#" data-bs-dismiss="offcanvas" onclick="switchNavigation('members', null)">
+        <i class="bi bi-people"></i> Members Management
+      </a>
+    </div>
+  </div>
+
+  <div class="main-content-area">
+    
+    <header class="app-header d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-light d-lg-none rounded-3 border" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu">
+          <i class="bi bi-list fs-5"></i>
+        </button>
+        <h5 class="m-0 fw-bold text-secondary" id="moduleTitle">Dashboard</h5>
+      </div>
+      
+      <button class="btn btn-primary d-flex align-items-center gap-2 rounded-3 px-3 py-2 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#memberModal">
+        <i class="bi bi-person-plus-fill"></i> <span class="d-none d-sm-inline">Add Member</span>
+      </button>
+    </header>
+
+    <main class="container-main">
+      
+      <div class="premium-card balance-card text-center mb-4">
+        <div class="text-white-50 small fw-semibold tracking-wider mb-1">TOTAL ACCOUNT BALANCE</div>
+        <div id="balanceDisplay" class="fw-bold tracking-tight" style="font-size: 2.75rem;">₹0.00</div>
+      </div>
+
+      <div id="mainUI">
+        <div class="row g-3 mb-4">
+          <div class="col-6">
+            <button class="w-100 btn-action btn-action-in" onclick="showForm('In')">
+              <i class="bi bi-arrow-down-left-circle-fill fs-5"></i> Cash In
+            </button>
+          </div>
+          <div class="col-6">
+            <button class="w-100 btn-action btn-action-out" onclick="showForm('Out')">
+              <i class="bi bi-arrow-up-right-circle-fill fs-5"></i> Cash Out
+            </button>
+          </div>
+        </div>
+
+        <div class="premium-card">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h6 class="fw-bold m-0 text-dark">Recent Transactions</h6>
+            <span class="badge bg-light text-secondary border px-2.5 py-1.5" id="pageInfo">Page 1</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle mb-0">
+              <tbody id="historyBody">
+                </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+            <button class="btn btn-sm btn-light border px-3 fw-medium" id="prevBtn" onclick="changePage(-1)">
+              <i class="bi bi-chevron-left me-1"></i> Previous
+            </button>
+            <button class="btn btn-sm btn-light border px-3 fw-medium" id="nextBtn" onclick="changePage(1)">
+              Next <i class="bi bi-chevron-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <form id="cashbookForm" class="premium-card">
+        <div class="d-flex align-items-center mb-4">
+          <button type="button" class="btn btn-light rounded-circle border me-3" onclick="hideForm()">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <h5 id="formTitle" class="m-0 fw-bold text-dark">New Transaction</h5>
+        </div>
+
+        <input type="hidden" id="formType">
+        <input type="hidden" id="rowIdField">
+
+        <div class="row g-3">
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold text-muted small">Date</label>
+            <input type="date" id="dateField" class="form-control" required>
+          </div>
+          <div class="col-12 col-md-6" id="memberFieldGroup">
+            <label class="form-label fw-semibold text-muted small">Select Member</label>
+            <select id="nameInput" class="form-select"></select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold text-muted small">Category</label>
+            <input type="text" id="monthField" class="form-control" placeholder="e.g., Monthly Fees, Rent" required>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label fw-semibold text-muted small">Amount (INR)</label>
+            <input type="number" id="amountField" class="form-control" placeholder="0.00" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold text-muted small">Description Details</label>
+            <textarea id="descField" class="form-control" rows="3" placeholder="Optional notes..."></textarea>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-2.5 fw-bold rounded-3 shadow-sm">Save Entry</button>
+          <button type="button" id="deleteBtn" class="btn btn-link text-danger w-100 mt-2 text-decoration-none fw-medium" onclick="deleteTransaction()">
+            <i class="bi bi-trash3 me-1"></i> Delete Record Entry
+          </button>
+        </div>
+      </form>
+
+      <div id="membersListUI">
+        <div class="d-flex align-items-center mb-4">
+          <button type="button" class="btn btn-light rounded-circle border me-3" onclick="hideForm()">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <h5 class="m-0 fw-bold text-dark">Roster Directory</h5>
+        </div>
+
+        <div class="premium-card p-0 overflow-hidden">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th class="ps-4 py-3 text-muted small fw-bold">JOIN DATE</th>
+                  <th class="pe-4 py-3 text-muted small fw-bold">MEMBER IDENTITY</th>
+                </tr>
+              </thead>
+              <tbody id="membersTableBody" class="border-0">
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
 </div>
 
-<div class="offcanvas-body">
-
-<a class="nav-link" href="#" onclick="hideForm()">
-<i class="bi bi-house"></i>
-Dashboard
-</a>
-
-<a class="nav-link" href="#" onclick="showMembersList()">
-<i class="bi bi-people"></i>
-Members
-</a>
-
-</div>
-</div>
-
-<div class="app-header d-flex justify-content-between align-items-center">
-
-<button
-class="btn border-0"
-data-bs-toggle="offcanvas"
-data-bs-target="#sidebarMenu">
-
-<i class="bi bi-list fs-3"></i>
-
-</button>
-
-<h6 class="m-0 fw-bold">Dashboard</h6>
-
-<button
-class="btn btn-primary rounded-circle"
-style="width:40px;height:40px"
-data-bs-toggle="modal"
-data-bs-target="#memberModal">
-
-<i class="bi bi-person-plus"></i>
-
-</button>
-
+<div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 rounded-4 shadow-lg">
+      <div class="modal-header border-0 px-4 pt-4 pb-0">
+        <h5 class="fw-bold text-dark m-0"><i class="bi bi-person-fill-add me-2 text-primary"></i>Register New Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="memberForm">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-muted">Enrollment Date</label>
+            <input type="date" id="memberDate" class="form-control" required>
+          </div>
+          <div>
+            <label class="form-label small fw-semibold text-muted">Full Legal Name</label>
+            <input type="text" id="memberName" class="form-control" placeholder="Enter member name" required>
+          </div>
+        </div>
+        <div class="modal-footer border-0 p-4 pt-0">
+          <button type="submit" id="saveMemberBtn" class="btn btn-primary w-100 py-2.5 rounded-3 fw-bold">Commit Verification Roster</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
-<div class="container-main">
-
-<div class="balance-card text-center mb-4">
-
-<div class="small text-muted">
-TOTAL BALANCE
-</div>
-
-<div
-id="balanceDisplay"
-class="fw-bold text-success"
-style="font-size:2.5rem">
-
-₹0.00
-
-</div>
-
-</div>
-
-<div id="mainUI">
-
-<div class="row g-3 mb-4">
-
-<div class="col-6">
-
-<button
-class="btn btn-success w-100 py-3 fw-bold"
-onclick="showForm('In')">
-
-CASH IN
-
-</button>
-
-</div>
-
-<div class="col-6">
-
-<button
-class="btn btn-danger w-100 py-3 fw-bold"
-onclick="showForm('Out')">
-
-CASH OUT
-
-</button>
-
-</div>
-
-</div>
-
-<div class="history-card">
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-
-<h6 class="fw-bold m-0">
-Recent Activity
-</h6>
-
-<div class="small text-muted" id="pageInfo">
-Page 1
-</div>
-
-</div>
-
-<div class="table-responsive">
-
-<table class="table table-borderless">
-
-<tbody id="historyBody"></tbody>
-
-</table>
-
-</div>
-
-<div class="d-flex justify-content-between mt-3">
-
-<button
-class="btn btn-light border"
-id="prevBtn"
-onclick="changePage(-1)">
-
-Prev
-
-</button>
-
-<button
-class="btn btn-light border"
-id="nextBtn"
-onclick="changePage(1)">
-
-Next
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<form id="cashbookForm">
-
-<div class="d-flex align-items-center mb-4">
-
-<button
-type="button"
-class="btn btn-light rounded-circle me-3"
-onclick="hideForm()">
-
-<i class="bi bi-arrow-left"></i>
-
-</button>
-
-<h5 id="formTitle" class="m-0 fw-bold">
-New Entry
-</h5>
-
-</div>
-
-<input type="hidden" id="formType">
-<input type="hidden" id="rowIdField">
-
-<div class="mb-3">
-
-<label class="fw-bold small">
-Date
-</label>
-
-<input
-type="date"
-id="dateField"
-class="form-control"
-required>
-
-</div>
-
-<div id="memberFieldGroup" class="mb-3">
-
-<label class="fw-bold small">
-Member
-</label>
-
-<select
-id="nameInput"
-class="form-select">
-
-</select>
-
-</div>
-
-<div class="mb-3">
-
-<label class="fw-bold small">
-Category
-</label>
-
-<input
-type="text"
-id="monthField"
-class="form-control"
-required>
-
-</div>
-
-<div class="mb-3">
-
-<label class="fw-bold small">
-Amount
-</label>
-
-<input
-type="number"
-id="amountField"
-class="form-control"
-required>
-
-</div>
-
-<div class="mb-4">
-
-<label class="fw-bold small">
-Description
-</label>
-
-<textarea
-id="descField"
-class="form-control">
-
-</textarea>
-
-</div>
-
-<button
-type="submit"
-id="submitBtn"
-class="btn btn-primary w-100 py-3 fw-bold">
-
-Save Entry
-
-</button>
-
-<button
-type="button"
-id="deleteBtn"
-class="btn btn-link text-danger w-100 mt-2"
-onclick="deleteTransaction()"
-style="display:none">
-
-Delete Transaction
-
-</button>
-
-</form>
-
-<div id="membersListUI">
-
-<div class="d-flex align-items-center mb-4">
-
-<button
-type="button"
-class="btn btn-light rounded-circle me-3"
-onclick="hideForm()">
-
-<i class="bi bi-arrow-left"></i>
-
-</button>
-
-<h5 class="m-0 fw-bold">
-Members
-</h5>
-
-</div>
-
-<div class="history-card">
-
-<table class="table">
-
-<tbody id="membersTableBody"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="modal fade" id="memberModal">
-
-<div class="modal-dialog modal-dialog-centered">
-
-<div class="modal-content border-0 rounded-4">
-
-<div class="modal-header border-0">
-
-<h5 class="fw-bold">
-New Member
-</h5>
-
-<button
-type="button"
-class="btn-close"
-data-bs-dismiss="modal">
-</button>
-
-</div>
-
-<form id="memberForm">
-
-<div class="modal-body">
-
-<input
-type="date"
-id="memberDate"
-class="form-control mb-3"
-required>
-
-<input
-type="text"
-id="memberName"
-class="form-control"
-placeholder="Member Name"
-required>
-
-</div>
-
-<div class="modal-footer border-0">
-
-<button
-type="submit"
-id="saveMemberBtn"
-class="btn btn-primary w-100">
-
-Save Member
-
-</button>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-<div class="modal fade" id="deleteConfirmModal">
-
-<div class="modal-dialog modal-dialog-centered modal-sm">
-
-<div class="modal-content border-0 text-center p-4 rounded-4">
-
-<h5 class="fw-bold mb-3">
-Delete Transaction?
-</h5>
-
-<button
-class="btn btn-danger mb-2"
-onclick="executeDelete()">
-
-Yes Delete
-
-</button>
-
-<button
-class="btn btn-light"
-data-bs-dismiss="modal">
-
-Cancel
-
-</button>
-
-</div>
-
-</div>
-
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 p-4 rounded-4 shadow-lg text-center">
+      <div class="text-danger mb-3"><i class="bi bi-exclamation-triangle-fill fs-1"></i></div>
+      <h5 class="fw-bold text-dark mb-2">Delete Transaction?</h5>
+      <p class="text-muted small mb-4">This administrative tracking operation cannot be undone inside the current cloud node system logs.</p>
+      <div class="d-grid gap-2">
+        <button class="btn btn-danger py-2 rounded-3 fw-bold" onclick="executeDelete()">Yes, Delete Document</button>
+        <button class="btn btn-light border py-2 rounded-3 fw-semibold text-secondary" data-bs-dismiss="modal">Abort Action</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-
-const API_URL =
-"https://script.google.com/macros/s/AKfycbzczSRIUyveX_QG7Fg61WY3Wuw-pLPsZpPjs0A_jvlqNnDf5J39BAlssbhyh0fgK0maZA/exec";
-
+const API_URL = "https://script.google.com/macros/s/AKfycbzczSRIUyveX_QG7Fg61WY3Wuw-pLPsZpPjs0A_jvlqNnDf5J39BAlssbhyh0fgK0maZA/exec";
 let currentSymbol = "₹";
 let allTransactions = [];
-
 let currentPage = 1;
 const rowsPerPage = 10;
 
@@ -490,422 +454,243 @@ const form = document.getElementById('cashbookForm');
 const mainUI = document.getElementById('mainUI');
 const membersListUI = document.getElementById('membersListUI');
 
-function hideForm(){
-
-form.style.display='none';
-membersListUI.style.display='none';
-mainUI.style.display='block';
-
-form.reset();
-
-document.getElementById('dateField').valueAsDate =
-new Date();
-
+/* Synchronizes high fidelity structural app view links manually */
+function switchNavigation(viewId, element) {
+  if (element) {
+    document.querySelectorAll('.sidebar-link').forEach(el => el.classList.remove('active-nav'));
+    element.classList.add('active-nav');
+  }
+  
+  if (viewId === 'dashboard') {
+    document.getElementById('moduleTitle').innerText = "Dashboard";
+    hideForm();
+  } else if (viewId === 'members') {
+    document.getElementById('moduleTitle').innerText = "Members Roster";
+    showMembersList();
+  }
 }
 
-function showForm(mode,isEdit=false){
+function hideForm(){
+  form.style.display='none';
+  membersListUI.style.display='none';
+  mainUI.style.display='block';
+  form.reset();
+  document.getElementById('dateField').valueAsDate = new Date();
+}
 
-mainUI.style.display='none';
-membersListUI.style.display='none';
-form.style.display='block';
-
-document.getElementById('formType').value=mode;
-
-document.getElementById('formTitle').innerText =
-isEdit ? 'Edit Entry' :
-(mode==='In' ? 'Cash In' : 'Cash Out');
-
-document.getElementById('deleteBtn').style.display =
-isEdit ? 'block' : 'none';
-
-document.getElementById('memberFieldGroup').style.display =
-mode==='In' ? 'block' : 'none';
-
+function showForm(mode, isEdit=false){
+  mainUI.style.display='none';
+  membersListUI.style.display='none';
+  form.style.display='block';
+  document.getElementById('formType').value=mode;
+  document.getElementById('formTitle').innerText = isEdit ? 'Modify Existing Entry' : (mode==='In' ? 'Cash Receipt Inflow' : 'Cash Disbursement Outflow');
+  document.getElementById('deleteBtn').style.display = isEdit ? 'block' : 'none';
+  document.getElementById('memberFieldGroup').style.display = mode==='In' ? 'block' : 'none';
 }
 
 function showMembersList(){
-
-mainUI.style.display='none';
-form.style.display='none';
-
-membersListUI.style.display='block';
-
-loadMembersData();
-
+  mainUI.style.display='none';
+  form.style.display='none';
+  membersListUI.style.display='block';
+  loadMembersData();
 }
 
 async function refreshNames(){
-
-const res =
-await fetch(API_URL + "?action=members");
-
-const names = await res.json();
-
-const select =
-document.getElementById('nameInput');
-
-select.innerHTML =
-'<option disabled selected>Select Member</option>';
-
-names.forEach(n=>{
-select.add(new Option(n,n));
-});
-
+  try {
+    const res = await fetch(API_URL + "?action=members");
+    const names = await res.json();
+    const select = document.getElementById('nameInput');
+    select.innerHTML = '<option disabled selected>Select Active Member Identity</option>';
+    names.forEach(n => { select.add(new Option(n, n)); });
+  } catch(e) { console.error("Error refreshing names:", e); }
 }
 
 async function refreshBalance(){
-
-const res =
-await fetch(API_URL + "?action=balance");
-
-const bal =
-await res.json();
-
-document.getElementById('balanceDisplay').innerText =
-currentSymbol + bal;
-
+  try {
+    const res = await fetch(API_URL + "?action=balance");
+    const bal = await res.json();
+    document.getElementById('balanceDisplay').innerText = currentSymbol + parseFloat(bal).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  } catch(e) { console.error("Error updating system balance:", e); }
 }
 
 async function updateHistory(){
-
-const res =
-await fetch(API_URL + "?action=history");
-
-allTransactions =
-await res.json();
-
-currentPage = 1;
-
-renderTable();
-
+  try {
+    const res = await fetch(API_URL + "?action=history");
+    allTransactions = await res.json();
+    currentPage = 1;
+    renderTable();
+  } catch(e) { console.error("Error gathering historical data:", e); }
 }
 
 function renderTable(){
+  const tbody = document.getElementById('historyBody');
+  if(allTransactions.length===0){
+    tbody.innerHTML = '<tr><td class="text-center py-5 text-muted"><i class="bi bi-folder-x fs-2 d-block mb-2"></i>No ledger entries documented yet.</td></tr>';
+    return;
+  }
+  const start = (currentPage - 1) * rowsPerPage;
+  const end = start + rowsPerPage;
+  const pageData = allTransactions.slice(start, end);
 
-const tbody =
-document.getElementById('historyBody');
+  tbody.innerHTML = pageData.map((row, index) => {
+    const realIndex = start + index;
+    const isIn = row[4] !== "";
+    const nameLabel = isIn ? row[1] : row[2];
+    const iconClass = isIn ? 'bi-arrow-down-left text-success bg-success-subtle' : 'bi-arrow-up-right text-danger bg-danger-subtle';
+    const amountVal = isIn ? row[4] : row[5];
 
-if(allTransactions.length===0){
+    return `
+      <tr class="clickable-row" onclick="editTransaction(${realIndex})">
+        <td class="ps-3" style="width: 60px;">
+          <div class="badge-action-icon ${isIn ? 'bg-success-subtle' : 'bg-danger-subtle'}">
+             <i class="bi ${isIn ? 'bi-plus-circle-fill text-success' : 'bi-dash-circle-fill text-danger'}"></i>
+          </div>
+        </td>
+        <td>
+          <div class="fw-bold text-dark">${nameLabel}</div>
+          <div class="small text-muted d-flex align-items-center gap-2 mt-0.5">
+            <span><i class="bi bi-calendar3 me-1"></i>${row[0]}</span>
+            ${row[3] ? `<span class="text-truncate" style="max-width: 180px;"><i class="bi bi-sticky me-1"></i>${row[3]}</span>` : ''}
+          </div>
+        </td>
+        <td class="${isIn ? 'text-success' : 'text-danger'} fw-bold text-end pe-3 fs-6">
+          ${isIn ? '+' : '-'}${currentSymbol}${parseFloat(amountVal).toLocaleString('en-IN', {minimumFractionDigits: 2})}
+        </td>
+      </tr>
+    `;
+  }).join('');
 
-tbody.innerHTML =
-'<tr><td>No Data</td></tr>';
-
-return;
-
-}
-
-const start =
-(currentPage - 1) * rowsPerPage;
-
-const end =
-start + rowsPerPage;
-
-const pageData =
-allTransactions.slice(start,end);
-
-tbody.innerHTML =
-pageData.map((row,index)=>{
-
-const realIndex = start + index;
-
-const isIn = row[4] !== "";
-
-return `
-<tr
-class="clickable-row"
-onclick="editTransaction(${realIndex})">
-
-<td>
-
-<div class="fw-bold">
-${isIn ? row[1] : row[2]}
-</div>
-
-<div class="small text-muted">
-${row[0]}
-</div>
-
-</td>
-
-<td class="${
-isIn ? 'text-success' : 'text-danger'
-} fw-bold text-end">
-
-${isIn ? '+' : '-'}
-${currentSymbol}
-${isIn ? row[4] : row[5]}
-
-</td>
-
-</tr>
-`;
-
-}).join('');
-
-const totalPages =
-Math.ceil(allTransactions.length / rowsPerPage);
-
-document.getElementById('pageInfo').innerText =
-`Page ${currentPage} / ${totalPages}`;
-
-document.getElementById('prevBtn').disabled =
-currentPage === 1;
-
-document.getElementById('nextBtn').disabled =
-currentPage === totalPages;
-
+  const totalPages = Math.ceil(allTransactions.length / rowsPerPage) || 1;
+  document.getElementById('pageInfo').innerText = `Page ${currentPage} of ${totalPages}`;
+  document.getElementById('prevBtn').disabled = currentPage === 1;
+  document.getElementById('nextBtn').disabled = currentPage === totalPages;
 }
 
 function changePage(step){
-
-const totalPages =
-Math.ceil(allTransactions.length / rowsPerPage);
-
-currentPage += step;
-
-if(currentPage < 1){
-currentPage = 1;
-}
-
-if(currentPage > totalPages){
-currentPage = totalPages;
-}
-
-renderTable();
-
+  const totalPages = Math.ceil(allTransactions.length / rowsPerPage) || 1;
+  currentPage += step;
+  if(currentPage < 1) currentPage = 1;
+  if(currentPage > totalPages) currentPage = totalPages;
+  renderTable();
 }
 
 form.onsubmit = async function(e){
+  e.preventDefault();
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Synchronizing...';
 
-e.preventDefault();
+  const formData = {
+    rowId: document.getElementById('rowIdField').value,
+    date: document.getElementById('dateField').value,
+    name: document.getElementById('nameInput').value || "N/A",
+    month: document.getElementById('monthField').value,
+    type: document.getElementById('formType').value,
+    amount: document.getElementById('amountField').value,
+    description: document.getElementById('descField').value
+  };
 
-const submitBtn =
-document.getElementById('submitBtn');
-
-submitBtn.disabled = true;
-
-submitBtn.innerHTML =
-'<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-
-const formData = {
-
-rowId:
-document.getElementById('rowIdField').value,
-
-date:
-document.getElementById('dateField').value,
-
-name:
-document.getElementById('nameInput').value || "N/A",
-
-month:
-document.getElementById('monthField').value,
-
-type:
-document.getElementById('formType').value,
-
-amount:
-document.getElementById('amountField').value,
-
-description:
-document.getElementById('descField').value
-
-};
-
-try{
-
-await fetch(API_URL,{
-
-method:"POST",
-
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-
-body:JSON.stringify({
-action:"saveTransaction",
-...formData
-})
-
-});
-
-hideForm();
-
-await refreshBalance();
-
-await updateHistory();
-
-}catch(err){
-
-alert(err);
-
-}
-
-submitBtn.disabled=false;
-
-submitBtn.innerHTML='Save Entry';
-
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "saveTransaction", ...formData })
+    });
+    hideForm();
+    await refreshBalance();
+    await updateHistory();
+  } catch(err) {
+    alert("System Processing Error: " + err);
+  }
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = 'Save Entry';
 };
 
 function editTransaction(index){
-
-const data = allTransactions[index];
-
-showForm(
-data[4] !== "" ? 'In' : 'Out',
-true
-);
-
-document.getElementById('rowIdField').value =
-data[6];
-
-const d = data[0].split('-');
-
-document.getElementById('dateField').value =
-`${d[2]}-${d[1]}-${d[0]}`;
-
-document.getElementById('nameInput').value =
-data[1];
-
-document.getElementById('monthField').value =
-data[2];
-
-document.getElementById('amountField').value =
-data[4] !== "" ? data[4] : data[5];
-
-document.getElementById('descField').value =
-data[3];
-
+  const data = allTransactions[index];
+  showForm(data[4] !== "" ? 'In' : 'Out', true);
+  document.getElementById('rowIdField').value = data[6];
+  const d = data[0].split('-');
+  document.getElementById('dateField').value = `${d[2]}-${d[1]}-${d[0]}`;
+  document.getElementById('nameInput').value = data[1];
+  document.getElementById('monthField').value = data[2];
+  document.getElementById('amountField').value = data[4] !== "" ? data[4] : data[5];
+  document.getElementById('descField').value = data[3];
 }
 
 function deleteTransaction(){
-
-new bootstrap.Modal(
-document.getElementById('deleteConfirmModal')
-).show();
-
+  new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
 }
 
 async function executeDelete(){
+  const rowId = document.getElementById('rowIdField').value;
+  const modalEl = document.getElementById('deleteConfirmModal');
+  bootstrap.Modal.getInstance(modalEl).hide();
 
-const rowId =
-document.getElementById('rowIdField').value;
-
-bootstrap.Modal
-.getInstance(document.getElementById('deleteConfirmModal'))
-.hide();
-
-await fetch(API_URL,{
-
-method:"POST",
-
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-
-body:JSON.stringify({
-action:"deleteTransaction",
-rowId:rowId
-})
-
-});
-
-hideForm();
-
-await refreshBalance();
-
-await updateHistory();
-
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "deleteTransaction", rowId: rowId })
+    });
+    hideForm();
+    await refreshBalance();
+    await updateHistory();
+  } catch(e) { alert("Deletion Failure: " + e); }
 }
 
 async function loadMembersData(){
-
-const res =
-await fetch(API_URL + "?action=membersFull");
-
-const members =
-await res.json();
-
-document.getElementById('membersTableBody').innerHTML =
-members.map(m=>`
-
-<tr>
-<td>${m[0]}</td>
-<td>${m[1]}</td>
-</tr>
-
-`).join('');
-
+  const tbody = document.getElementById('membersTableBody');
+  tbody.innerHTML = '<tr><td colspan="2" class="text-center py-4"><span class="spinner-border spinner-border-sm text-primary me-2"></span>Loading Roster Array...</td></tr>';
+  
+  try {
+    const res = await fetch(API_URL + "?action=membersFull");
+    const members = await res.json();
+    if(members.length === 0){
+      tbody.innerHTML = '<tr><td colspan="2" class="text-center py-4 text-muted">No configuration profiles exist inside Database logs.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = members.map(m => `
+      <tr>
+        <td class="ps-4 text-secondary small font-monospace">${m[0]}</td>
+        <td class="pe-4 fw-bold text-dark">${m[1]}</td>
+      </tr>
+    `).join('');
+  } catch(e) { tbody.innerHTML = '<tr><td colspan="2" class="text-center text-danger py-4">Failed to pull database profiles.</td></tr>'; }
 }
 
-document.getElementById('memberForm').onsubmit =
-async function(e){
+document.getElementById('memberForm').onsubmit = async function(e){
+  e.preventDefault();
+  const btn = document.getElementById('saveMemberBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Encrypting Entry...';
 
-e.preventDefault();
-
-const btn =
-document.getElementById('saveMemberBtn');
-
-btn.disabled=true;
-
-btn.innerHTML='Saving...';
-
-await fetch(API_URL,{
-
-method:"POST",
-
-headers:{
-"Content-Type":"text/plain;charset=utf-8"
-},
-
-body:JSON.stringify({
-
-action:"saveMember",
-
-date:
-document.getElementById('memberDate').value,
-
-name:
-document.getElementById('memberName').value
-
-})
-
-});
-
-bootstrap.Modal
-.getInstance(document.getElementById('memberModal'))
-.hide();
-
-this.reset();
-
-document.getElementById('memberDate').valueAsDate =
-new Date();
-
-await refreshNames();
-
-btn.disabled=false;
-
-btn.innerHTML='Save Member';
-
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "saveMember",
+        date: document.getElementById('memberDate').value,
+        name: document.getElementById('memberName').value
+      })
+    });
+    bootstrap.Modal.getInstance(document.getElementById('memberModal')).hide();
+    this.reset();
+    document.getElementById('memberDate').valueAsDate = new Date();
+    await refreshNames();
+    if(membersListUI.style.display === 'block') await loadMembersData();
+  } catch(err) { alert("Registration fault: " + err); }
+  
+  btn.disabled = false;
+  btn.innerHTML = 'Commit Verification Roster';
 };
 
 window.onload = async function(){
-
-document.getElementById('dateField').valueAsDate =
-new Date();
-
-document.getElementById('memberDate').valueAsDate =
-new Date();
-
-await refreshNames();
-
-await refreshBalance();
-
-await updateHistory();
-
+  document.getElementById('dateField').valueAsDate = new Date();
+  document.getElementById('memberDate').valueAsDate = new Date();
+  await Promise.all([refreshNames(), refreshBalance(), updateHistory()]);
 };
-
 </script>
-
 </body>
 </html>
