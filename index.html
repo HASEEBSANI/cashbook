@@ -418,6 +418,7 @@ body {
   </div>
 </div>
 
+<!-- Add Member Modal -->
 <div class="modal fade" id="memberModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 rounded-4 shadow-lg">
@@ -444,6 +445,28 @@ body {
   </div>
 </div>
 
+<!-- Transaction Action Choice Modal (Edit or Delete) -->
+<div class="modal fade" id="actionChoiceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 p-4 rounded-4 shadow-lg text-center">
+      <div class="text-primary mb-2"><i class="bi bi-gear-wide-connected fs-1"></i></div>
+      <h5 class="fw-bold text-dark mb-1">Select Action</h5>
+      <p class="text-muted small mb-4">Choose what you want to do with this transaction entry.</p>
+      <input type="hidden" id="selectedRowIndex">
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" onclick="triggerEditFromModal()">
+          <i class="bi bi-pencil-square"></i> Edit Entry
+        </button>
+        <button class="btn btn-outline-danger py-2.5 rounded-3 fw-bold d-flex align-items-center justify-content-center gap-2" onclick="triggerDeleteFromModal()">
+          <i class="bi bi-trash3"></i> Delete Entry
+        </button>
+        <button class="btn btn-light border py-2 rounded-3 fw-semibold text-secondary mt-1" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content border-0 p-4 rounded-4 shadow-lg text-center">
@@ -553,7 +576,7 @@ function renderTable(){
     const amountVal = isIn ? row[4] : row[5];
 
     return `
-      <tr class="clickable-row" onclick="editTransaction(${realIndex})">
+      <tr class="clickable-row" onclick="openActionChoice(${realIndex})">
         <td class="ps-2" style="width: 50px;">
           <div class="badge-action-icon ${isIn ? 'bg-success-subtle' : 'bg-danger-subtle'}">
              <i class="bi ${isIn ? 'bi-plus-circle-fill text-success' : 'bi-dash-circle-fill text-danger'}"></i>
@@ -585,6 +608,25 @@ function changePage(step){
   if(currentPage < 1) currentPage = 1;
   if(currentPage > totalPages) currentPage = totalPages;
   renderTable();
+}
+
+function openActionChoice(index){
+  document.getElementById('selectedRowIndex').value = index;
+  new bootstrap.Modal(document.getElementById('actionChoiceModal')).show();
+}
+
+function triggerEditFromModal(){
+  const index = document.getElementById('selectedRowIndex').value;
+  bootstrap.Modal.getInstance(document.getElementById('actionChoiceModal')).hide();
+  editTransaction(index);
+}
+
+function triggerDeleteFromModal(){
+  const index = document.getElementById('selectedRowIndex').value;
+  const data = allTransactions[index];
+  document.getElementById('rowIdField').value = data[6];
+  bootstrap.Modal.getInstance(document.getElementById('actionChoiceModal')).hide();
+  new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
 }
 
 form.onsubmit = async function(e){
@@ -632,6 +674,7 @@ function editTransaction(index){
 }
 
 function deleteTransaction(){
+  bootstrap.Modal.getInstance(document.getElementById('actionChoiceModal'))?.hide();
   new bootstrap.Modal(document.getElementById('deleteConfirmModal')).show();
 }
 
